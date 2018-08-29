@@ -21,7 +21,7 @@ send ether&amp;&amp;dapp tokens,etc..
 
 ### Example
 ----
-生成钱包：
+生成钱包(得到 `助记词`,`地址`，`私钥`，`keystore文件内容`)：
 ```javascript
 eth_wallet_js.gen_wallet('123456789',function(w){
     console.log(w);
