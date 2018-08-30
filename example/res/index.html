@@ -1,0 +1,448 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="keywords" content=""/> 
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width,initial-scale=1, maximum-scale=1, user-scalable=no">
+        <meta name="format-detection" content="telephone=no">
+        <meta name="format-detection" content="email=no">
+        
+        <title></title>
+        <!-- 
+        <link rel="shortcut icon" href="favicon.ico">
+        <link rel="icon" href="favicon.ico"> 
+        -->
+       
+        <style type="text/css">
+            .bk{
+                background-color: #edf0f2;
+                border-radius: 8px;
+                margin: 20px 15px;
+                padding: 15px;
+            }
+            .btn{
+                min-width: 80px;
+                min-height: 40px;
+                margin: 15px;
+            }
+            .text{
+                font-size: 13px;
+                color: #222;
+                line-height: 20px;
+                word-break: break-all;
+                margin: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        
+        <div class="x-page">
+            <div class="bk">
+                <input type="text" id="walletpwd" placeholder="输入钱包密码" value="123456789">
+                <button id="genwallet" class="btn">生成钱包</button>
+                <p class="text">生成的钱包地址:</p>
+                <p id="newaddress" class="text"></p>
+                <p class="text">生成的私钥：</p>
+                <p id="newprivatekey" class="text"></p>
+                <p class="text">生成的钱包助记词：</p>
+                <p id="newmnemonic" class="text"></p>
+                <p class="text">生成的keystore文件内容:</p>
+                <p id="newkeystore" class="text"></p>
+            </div>
+            <div class="bk">
+                <p class="text">从私钥导入</p>
+                <input type="text" id="privatekey" value="">
+                <button id="unlock_from_privatekey" class="btn">解锁钱包</button>
+                <p class="text">解锁的地址为</p>
+                <p id="from_private_addr" class="text"></p>
+            </div>
+            <div class="bk">
+                <p class="text">从助记词导入</p>
+                <input type="text" id="mnemonic_optional_password" value="" placeholder="提供密码(可选)">
+                <textarea name="mnemonic" id="mnemonic" cols="30" rows="5" value="cruise sell three kitten sting step noise kit mimic bid among main" ></textarea>
+                <button id="unlock_from_mnemonic" class="btn">解锁钱包</button>
+                <p class="text">解锁的地址为</p>
+                <p id="from_mnemonic_addr" class="text"></p>
+            </div>
+            <div class="bk">
+                <p class="text">从keystore导入</p>
+                <textarea name="keystore" id="keystore" cols="30" rows="10" value="" ></textarea>
+                <button id="unlock_from_keystore" class="btn">解锁钱包</button>
+                <p class="text">解锁的地址为</p>
+                <p id="from_keystore_addr" class="text"></p>
+            </div>
+            <div class="bk">
+                <p class="text">根据地址查询账户余额</p>
+                <input type="text" id="to_balance_address" placeholder="请输入账户地址">
+                <button id="address_to_balance_btn">查询</button>
+                <p class="text">账户以太坊余额:</p>
+                <div id="address_balance"></div>
+                <p class="text">账户true余额: <span id="address_true_balance"></span> </p>
+                <p class="text">账户ttr余额: <span id="address_ttr_balance"></span> </p>
+            </div>
+            <div class="bk">
+                <p class="text">
+                    发送以太坊 
+                    <span> 最近的gas price:</span>
+                    <span id="latest_gasprice"></span>gwei
+                </p>                
+                <input type="text" id="send_eth_to_addr" placeholder="收款地址">
+                <input type="text" id="from_eth" placeholder="付款地址">
+                <input type="text" id="from_eth_privatekey" placeholder="付款地址私钥">
+                <input type="text" id="send_eth_num" placeholder="发送多少以太坊（单位:ether）">
+                <button id="send_eth_btn1">本地钱包发送</button>
+                <button id="send_eth_btn2">私钥签名交易离线发送</button>
+                <p class="text" id="send_eth_sts"></p>
+                <p class="text" id="send_eth_txid"></p>
+            </div>
+            <div class="bk">
+                <p class="text">发送true</p>
+                <input type="text" id="send_true_to_addr" placeholder="收款地址">
+                <input type="text" id="send_ture_from_addr" placeholder="付款地址">
+                <input type="text" id="send_true_privatekey" placeholder="付款地址私钥">
+                <input type="text" id="send_true_num" placeholder="发送多少true(单位:1)">
+                <button id="send_true_btn2">私钥签名交易离线发送</button>
+                <p class="text" id="send_true_sts"></p>
+            </div>
+            <div class="bk">
+                <p class="text">发送ttr投票</p>
+                <input type="text" id="send_ttr_to_addr" placeholder="收款地址">
+                <input type="text" id="send_ttr_from_addr" placeholder="付款地址">
+                <input type="text" id="send_ttr_privatekey" placeholder="付款地址私钥">
+                <input type="text" id="send_ttr_num" placeholder="发送多少ttr(单位:1)">
+                <button id="send_ttr_btn2">私钥签名交易离线发送</button>
+                <p class="text" id="send_ttr_sts"></p>
+            </div>
+
+        </div>
+        
+        <script type="text/javascript" src="./lib/jquery_2.1.4_jquery.min.js" ></script>
+        <script type="text/javascript" src="./lib/lightwallet.js" ></script>
+        <script src="./lib/web3.min.js"></script>
+        <script src="./lib/eth-wallet-js.js"></script>
+        <script type="text/javascript">
+        // ;(function ($) {
+            var log = console.log;
+            log(lightwallet);
+            
+            var true_contract;// true合约实例
+            var true_contract_json = '';// true合约abi json
+            var true_contract_addr = '';// true合约 地址
+            var keyStore = lightwallet.keystore; // 
+            var txUtils = lightwallet.txutils; // 
+
+            eth_wallet_js.gen_wallet('123456789',function(w){
+                console.log( w  ) ;
+            });
+
+            
+            //初始化web3 连接公共远程节点
+            // var web3 = new Web3(new Web3.providers.WebsocketProvider("wss://mainnet.infura.io/ws"));
+            var web3 = new Web3( new Web3.providers.HttpProvider('https://mainnet.infura.io/') );
+            // var web3 = new Web3( new Web3.providers.HttpProvider('https://mainnet.infura.io/v3/b50103e767c04eb9a9e1347c5e86cfca') );
+            setTimeout( function(){ 
+                log(web3);
+                // 当前gas单价 取最近几个区块的中位数
+                web3.eth.getGasPrice()
+                .then(function(res){
+                    var gweinum = web3.utils.fromWei(res,'gwei');
+                    if( gweinum.lastIndexOf('.') > 0 ){
+                        gweinum = gweinum.substring(0,gweinum.lastIndexOf('.') );
+                    }
+                    $('#latest_gasprice').text(gweinum);
+                }); 
+
+                
+
+            } ,2000);
+            // 0.20 stable-version
+            // if (typeof web3 !== 'undefined') {
+            //     web3 = new Web3(web3.currentProvider);
+            // } else {
+            // // set the provider you want from Web3.providers
+            //     web3 = new Web3( new Web3.providers.HttpProvider("https://mainnet.infura.io/") );                
+            // }
+            
+            // 点击生成钱包
+            $("#genwallet").click(function(){
+                var password = $('#walletpwd').val();
+                if( (password) && (password.length) && (password.length < 9) ){
+                    alert("请至少输入9位");
+                }
+
+                var seedPhrase = lightwallet.keystore.generateRandomSeed(); // 随机种子 12个随机词汇
+                // log(seedPhrase); // 随机种子 12个随机词汇
+                
+                keyStore.createVault({
+                    password: password,
+                    seedPhrase:seedPhrase,
+                    hdPathString: "m/44'/60'/0'/0" // "m/44'/60'/0'/0/0"
+                },
+                function(err, ks){
+                    if(err){ throw err; } 
+                    log(ks); //keystore对象
+                    ks.keyFromPassword(password, function (err, pwDerivedKey) {
+                        if (err) throw err;
+                        
+                        // log(pwDerivedKey);  // 32byte  :uint8-array
+                        // ks.generateNewAddress(pwDerivedKey, 5);  //使用私钥派生生成5个 地址私钥对到keystore对象里
+                        // var addrs = ks.getAddresses(); log(addrs) 
+                        // ["0xssdd..","0xssdd..",] 5个地址 每个都是20字节 40位16进制字符串 前面加0x共42位
+
+                        ks.generateNewAddress(pwDerivedKey, 1);
+                        var addrs = ks.getAddresses();
+                        var jsontext = ks.serialize(); // 得到json字符串格式的keystore
+                        // log(  jsontext )
+
+                        // 得到导出的私钥:
+                        var privatekey = ks.exportPrivateKey(addrs[0], pwDerivedKey);
+                        // log( privatekey );
+
+                        $('#newprivatekey').text("0x"+privatekey);
+                        $('#newmnemonic').text(seedPhrase);
+                        $('#newkeystore').text(jsontext);
+                        $('#newaddress').text(addrs[0]);
+                    });
+                });
+
+            });
+
+            //从私钥导入
+            $('#unlock_from_privatekey').click(function(){
+                var privatekey = $('#privatekey').val(); 
+                // log(privatekey,privatekey.length);
+                if( privatekey.indexOf("0x") < 0 ){ privatekey = "0x"+privatekey; }
+                var account = web3.eth.accounts.privateKeyToAccount(privatekey);
+                log(account);
+                $('#from_private_addr').text(account.address);  // web3从私钥得到的钱包账户时地址可能中含有大写字母
+            });
+
+            //从助记词导入
+            $('#unlock_from_mnemonic').click(function(){
+                var mnemonic = $('#mnemonic').val();
+                var password = $('#mnemonic_optional_password').val();
+                log( mnemonic,password );
+                keyStore.createVault(
+                    {
+                        password:password,
+                        seedPhrase:mnemonic,
+                        hdPathString: "m/44'/60'/0'/0"
+                    },
+                    function(err,ks){
+                        if (err) throw err;
+                        ks.keyFromPassword(password, function (err, pwDerivedKey) {
+                            if (err) throw err;
+                            ks.generateNewAddress(pwDerivedKey, 1);
+                            var addrs = ks.getAddresses();
+
+                            $('#from_mnemonic_addr').text( addrs[0] );
+                        });
+                    }
+                )
+            });
+
+            //从keystore导入(需要再提供密码)
+            $('#unlock_from_keystore').click(function(){
+                var keystore_file = $('#keystore').val();
+                var ks = keyStore.deserialize(keystore_file);
+                var addrs = ks.getAddresses();
+                $('#from_keystore_addr').text( addrs[0] );
+            });
+
+            //根据账户地址得到账户余额
+            $('#address_to_balance_btn').click(function(){
+                var addr = $('#to_balance_address').val();
+                
+                web3.eth.getBalance(addr)
+                .then(function(res){
+                    var gweinum = web3.utils.fromWei(res,'gwei') ;
+                    if( gweinum.lastIndexOf('.') > 0 ){
+                        gweinum = gweinum.substring(0,gweinum.lastIndexOf('.') );
+                    }
+                    var ethernum = web3.utils.fromWei(res,'ether')
+                                        
+                    var fmtstr = res+' wei = '+gweinum+' gwei = '+ethernum+' ether'
+                    $('#address_balance').text(fmtstr);
+                });
+            });
+
+            
+            
+            // 发送以太坊 得到交易id txhash  本地钱包账户发送
+            $('#send_eth_btn1').click(function(){
+                var send_eth_to_addr = $('#send_eth_to_addr').val(); //收款地址
+                var from_eth = $('#from_eth').val();// 付款地址
+                var privatekey = $('#from_eth_privatekey').val();// 付款地址私钥
+                var send_eth_num = $('#send_eth_num').val();  //付款数量
+                send_eth_num = web3.utils.toWei(send_eth_num,'ether');
+                
+                var gas_price = ( parseInt( $('#latest_gasprice').text() ) + 5 ).toString();// 最近的gasprice 基础上+5gwei 
+                gas_price = web3.utils.toWei(gas_price,'gwei'); 
+
+                
+                if( privatekey.indexOf("0x") < 0 ){ privatekey = "0x"+privatekey; }
+                var account = web3.eth.accounts.privateKeyToAccount(privatekey);
+                web3.eth.accounts.wallet.add(account); //添加到本地内存中的钱包中
+                
+                // log( web3.eth.defaultAccount );
+                // log(from_eth,send_eth_to_addr,send_eth_num,gas_price);
+                web3.eth.sendTransaction({
+                    from:from_eth,
+                    to:send_eth_to_addr,
+                    value:send_eth_num,
+                    gas:110000,
+                    gasPrice:gas_price
+                },
+                function(err,txid){
+                    if(err){ log(err); return false;}
+                    $('#send_eth_txid').text('交易id(txhash):'+txid);
+                }
+                );
+            });
+
+            //发送以太坊 私钥签名交易
+            $('#send_eth_btn2').click(function(){
+                var send_eth_to_addr = $('#send_eth_to_addr').val(); //收款地址
+                var from_eth = $('#from_eth').val();// 付款地址
+                var privatekey = $('#from_eth_privatekey').val();// 付款地址私钥
+                if( privatekey.indexOf("0x") < 0 ){ privatekey = "0x"+privatekey; }
+                var send_eth_num = $('#send_eth_num').val();  //付款数量
+                send_eth_num = web3.utils.toWei(send_eth_num,'ether');                
+                var gas_price = ( parseInt( $('#latest_gasprice').text() ) + 5 ).toString();// 最近的gasprice 基础上+5gwei 
+                gas_price = web3.utils.toWei(gas_price,'gwei'); 
+
+                var tx ={
+                    to:send_eth_to_addr,
+                    value: send_eth_num,
+                    gas:110000,
+                    gasPrice:gas_price
+                };
+                
+                web3.eth.accounts.signTransaction(tx, privatekey )
+                .then(function(res){
+                    log(res);
+                    web3.eth.sendSignedTransaction(res.rawTransaction)
+                    .on('transactionHash', function(hash){
+                        $('#send_eth_txid').text('交易id(txhash):'+hash);
+                    })
+                    .on('receipt', function(rece){
+                        log('rece');
+                        log(rece);
+                        $('#send_eth_txid').text('交易id(txhash):'+rece.transactionHash+' 交易完成！ ');
+                    })
+                    .on('error',function(err,rece){
+                        log('error',err,rece)
+                        
+                    })
+                });
+            });
+            
+            true_contract_json = [{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_value","type":"uint256"}],"name":"approve","outputs":[{"name":"success","type":"bool"}],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"baseStartTime","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"supply","type":"uint256"}],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"success","type":"bool"}],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"_startTime","type":"uint256"}],"name":"setStartTime","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[],"name":"kill","outputs":[],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"founder","outputs":[{"name":"","type":"address"}],"payable":false,"type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"newFounder","type":"address"}],"name":"changeFounder","outputs":[],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transfer","outputs":[{"name":"success","type":"bool"}],"payable":false,"type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"},{"name":"_spender","type":"address"}],"name":"allowance","outputs":[{"name":"remaining","type":"uint256"}],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"_amount","type":"uint256"},{"name":"_to","type":"address"}],"name":"distribute","outputs":[],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"distributed","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},{"inputs":[{"name":"_founder","type":"address"}],"payable":false,"type":"constructor"},{"payable":true,"type":"fallback"},{"anonymous":false,"inputs":[{"indexed":true,"name":"sender","type":"address"}],"name":"AllocateFounderTokens","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_from","type":"address"},{"indexed":true,"name":"_to","type":"address"},{"indexed":false,"name":"_value","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_owner","type":"address"},{"indexed":true,"name":"_spender","type":"address"},{"indexed":false,"name":"_value","type":"uint256"}],"name":"Approval","type":"event"}];
+            
+            true_contract_addr = '0xa4d17ab1ee0efdd23edc2869e7ba96b89eecf9ab';
+
+            ttr_contract_json = [{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_value","type":"uint256"}],"name":"approve","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"supply","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"},{"name":"","type":"address"}],"name":"votingInfo","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"balances","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"ticketsOf","outputs":[{"name":"tickets","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"kill","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"founder","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"vote","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"newFounder","type":"address"}],"name":"changeFounder","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"voteEndTime","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"totalVotes","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transfer","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_tos","type":"address[]"},{"name":"_values","type":"uint256[]"}],"name":"distributeMultiple","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_to","type":"address"}],"name":"voteAll","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_endTime","type":"uint256"}],"name":"setEndTime","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"frozen","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"},{"name":"_spender","type":"address"}],"name":"allowance","outputs":[{"name":"remaining","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"distributed","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_amount","type":"uint256"}],"name":"distribute","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"inputs":[],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_from","type":"address"},{"indexed":true,"name":"_to","type":"address"},{"indexed":false,"name":"_value","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_from","type":"address"},{"indexed":true,"name":"_to","type":"address"},{"indexed":false,"name":"_value","type":"uint256"}],"name":"Vote","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_owner","type":"address"},{"indexed":true,"name":"_spender","type":"address"},{"indexed":false,"name":"_value","type":"uint256"}],"name":"Approval","type":"event"}]
+
+            ttr_contract_addr = '0xf2bb016e8c9c8975654dcd62f318323a8a79d48e';
+            
+            // 初始化 true合约            
+            true_contract = new web3.eth.Contract(true_contract_json,true_contract_addr);
+
+            // 初始化 ttr合约
+            ttr_contract = new web3.eth.Contract(ttr_contract_json,ttr_contract_addr);
+            
+            $('#send_true_btn2').click(function(){
+                var send_true_to_addr = $('#send_true_to_addr').val(); // 收款地址
+                var send_ture_from_addr = $('#send_ture_from_addr').val();//付款地址
+
+                var privatekey = $('#send_true_privatekey').val();//付款私钥
+                if( privatekey.indexOf("0x") < 0 ){ privatekey = "0x"+privatekey; }
+
+                var send_true_num = $('#send_true_num').val();//付款数量
+                send_true_num = web3.utils.toWei(send_true_num)
+
+                var gas_price = ( parseInt( $('#latest_gasprice').text() ) + 5 ).toString();// 最近的gasprice 基础上+5gwei 
+                gas_price = web3.utils.toWei(gas_price,'gwei'); 
+
+                var encode_abi = true_contract.methods.transfer(send_true_to_addr,send_true_num).encodeABI();
+
+                var tx ={
+                    to:true_contract.options.address,  // 代币转账发送到合约地址
+                    gas:110000,
+                    gasPrice:gas_price,
+                    data: encode_abi // 发送到合约地址处理的数据
+                };
+                web3.eth.accounts.signTransaction(tx, privatekey )
+                .then(function(res){
+                    log(res);
+                    web3.eth.sendSignedTransaction(res.rawTransaction)
+                    .on('transactionHash', function(hash){
+                        $('#send_true_sts').text('交易id(txhash):'+hash);
+                    })
+                    .on('confirmation',function(num,rece){
+                        log('confirm');
+                        $('#send_true_sts').text('交易id(txhash):'+rece.transactionHash+' 交易已被'+num+'次确认' );
+                    })
+                    .on('receipt', function(rece){
+                        log('rece');
+                        log(rece);
+                        $('#send_true_sts').text('交易id(txhash):'+rece.transactionHash+' 交易完成！ ');
+                    })
+                    .on('error',function(err,rece){
+                        log('error',err,rece)
+                    })
+                });
+            });
+
+            $('#send_ttr_btn2').click(function(){
+                var send_ttr_to_addr = $('#send_ttr_to_addr').val(); // 收款地址
+                var send_ttr_from_addr = $('#send_ttr_from_addr').val();//付款地址
+
+                var privatekey = $('#send_ttr_privatekey').val();//付款私钥
+                if( privatekey.indexOf("0x") < 0 ){ privatekey = "0x"+privatekey; }
+
+                var send_ttr_num = $('#send_ttr_num').val();//付款数量
+                send_ttr_num = web3.utils.toWei(send_ttr_num)
+
+                var gas_price = ( parseInt( $('#latest_gasprice').text() ) + 5 ).toString();// 最近的gasprice 基础上+5gwei 
+                gas_price = web3.utils.toWei(gas_price,'gwei'); 
+
+                var encode_abi = ttr_contract.methods.transfer(send_ttr_to_addr,send_ttr_num).encodeABI();
+
+                var tx ={
+                    to:ttr_contract.options.address,  // 代币转账发送到合约地址
+                    gas:110000,
+                    gasPrice:gas_price,
+                    data: encode_abi // 发送到合约地址处理的数据
+                };
+                web3.eth.accounts.signTransaction(tx, privatekey )
+                .then(function(res){
+                    log(res);
+                    web3.eth.sendSignedTransaction(res.rawTransaction)
+                    .on('transactionHash', function(hash){
+                        $('#send_ttr_sts').text('交易id(txhash):'+hash);
+                    })
+                    .on('confirmation',function(num,rece){
+                        log('confirm');
+                        $('#send_ttr_sts').text('交易id(txhash):'+rece.transactionHash+' 交易已被'+num+'次确认' );
+                    })
+                    .on('receipt', function(rece){
+                        log('rece');
+                        log(rece);
+                        $('#send_ttr_sts').text('交易id(txhash):'+rece.transactionHash+' 交易完成！ ');
+                    })
+                    .on('error',function(err,rece){
+                        log('error',err,rece)
+                    })
+                });
+            });
+
+
+            
+            
+
+        // }) (jQuery);
+        </script>
+    </body>
+</html>

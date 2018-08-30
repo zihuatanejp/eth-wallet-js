@@ -18,6 +18,14 @@ send ether&amp;&amp;dapp tokens,etc..
 <script src="your-path/dist/web3.min.js"></script>
 <script src="your-path/dist/eth-wallet-js.js"></script>
 ```
+查看示例:
+```
+> git clone https://github.com/zihuatanejp/eth-wallet-js.git
+> cd eth-wallet-js
+> npm install
+> npm run example
+```
+// 然后在浏览器中打开 [http://127.0.0.1:8511/](http://127.0.0.1:8511/)
 
 ### Example
 ----
