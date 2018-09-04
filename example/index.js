@@ -3,7 +3,6 @@ var http = require('http')
 var serveStatic = require('serve-static')
 var log = console.log;
 
-log( 'example start on: http://127.0.0.1:8511' )
 
 var serve = serveStatic( 'example/res', {'index': ['index.html', 'index.htm']} )
 
@@ -12,4 +11,7 @@ var server = http.createServer(function onRequest(req, res) {
 })
    
 // Listen 
-server.listen(8511)
+server.listen(8511,function(err){
+    if( err ) throw err;
+    log( 'example start on: http://127.0.0.1:8511' );
+})
