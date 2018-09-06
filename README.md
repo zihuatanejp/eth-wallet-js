@@ -67,3 +67,82 @@ eth_wallet_js.gen_wallet('123456789',function(w){
 */
 
 ```
+
+导入钱包（支持三种方式：‘助记词’，‘私钥’，‘keystore内容和密码’）
+回调函数返回一对 { 账户地址,私钥  }组成的对象
+```javascript
+
+/** 返回res格式如下所示
+ {
+    address: "0xca83d7ff4bb20f5e25c101a0c6ab515469d2fcba", 
+    privatekey: "0x4f3c86b1d4e4f471cb1c0b05d4402ff793d374bbe3c0855d27b0e9b0a3624218"
+ }
+*/
+var ewj = eth_wallet_js;
+//助记词导入
+ewj.get_address_privatekey(
+    'mnemonic',
+    'pulp misery inmate wheat hero absent modify sock carry record top movie',
+    function(res){
+        log(res);
+    }
+);
+//私钥导入
+ewj.get_address_privatekey(
+    'privatekey',
+    '5eb43a8c0ae8d7b105085c7d81abcffc16802106296318ac69b7670b9d4124bb',
+    function(res){
+        log(res);
+    }
+);
+//keystore导入 如果keystore生成时没有设置密码将password值传为''
+ewj.get_address_privatekey(
+    'keystore',
+    {
+        password:'123456789',
+        keystore:`{"encSeed":{"encStr":"kBkCtUiDBmtTBLYqjJ/oggt0QmLl7dwi9e14scBX9z2CCBGfKoKwVoQn04prZSbkyzBVrMmt3ibdbk228aD54Lx1utJVDTjZwfaqlU8v/8uysgQCCm0b+/9jeFMbsNyJA2nuvRIFqtubE+1xQszn7zuSbY6598my05QNzCec0C/o0sliT0LGtA==","nonce":"NKDC1uxeJjwn3fEdvLjrA3AI3Aumuz7T"},"encHdRootPriv":{"encStr":"QeTjkJJTleeZNvb43aKgQXxI51NG9Yl92iYX6wbgx5QcvpVnBrbh5Gow+NPDbFkZQqrgFnBE0GpbeFbqM/8qaSXJfUqQOmT3olZL2JZ9vJgw+85SdMxaTWZB5Vmwz7zlyD5g8kVdF3lzsnQ4ddyKiXljLzSPHV9LKJ9OXXJ5DA==","nonce":"4ZG0q0o8p4Ym7GZxpOmfOPUcks5jeWn7"},"addresses":["ca83d7ff4bb20f5e25c101a0c6ab515469d2fcba"],"encPrivKeys":{"ca83d7ff4bb20f5e25c101a0c6ab515469d2fcba":{"key":"0EnU9wD+Veo0kKAKZceXsj4STOAOjOg0T/BxT2u6DCTO4nXpI4iuWZ6I13dGTaVy","nonce":"sA8MaIfMviiNuZYToTc3t/CJFdq0TJVs"}},"hdPathString":"m/44'/60'/0'/0/0","salt":"kVKX/fOAHtvfCVL5Rz8HaEA4recKAwGDt6cmpCGJoUs=","hdIndex":1,"version":3}`
+    },
+    function(res){
+        log(res)
+    }
+);
+
+```
+
+以太坊网络当前的gas价格 默认是wei,你可以在需要的任何时候访问这个属性：
+```
+eth_wallet_js.gas_price // '3500000000'  
+```
+
+下载keystore文件到本地 （在浏览器端创建一个下载任务）
+```javascript
+eth_wallet_js.download_keystore_file(
+    {
+        file_name:`xxx`, // 该字段可选，默认值：ethkeystore+当前毫秒级时间戳，推荐不传它，但也可以指定
+        data:`xxxx`// keystore的json-字符串 keystore文件内容
+    }
+)
+```
+
+得到web3的account对象，import_type:'mnemonic||privatekey||keystore' 参数同导入账户。  
+eth_wallet_js.get_eth_account((import_type,data,function(account){})
+
+得到指定账户地址指定代币的余额
+```javascript
+eth_wallet_js.get_balance(
+    { 
+        address:'xxx',
+        contract:{} // 该字段可选，合约对象 (可不传，默认查以太坊余额 通过调用get_contract得到合约对象)
+    },
+    function(res){
+/*  返回res 对象类似如下
+    {
+      gwei:xx,
+      wei: xx,
+      ether:xx,
+      token:xx //如果传入第二个参数的话，则这个字段返回代币余额
+    }
+*/
+    }
+){
+```
