@@ -131,9 +131,10 @@
             var true_contract_addr = '';// true合约 地址
             var keyStore = lightwallet.keystore; // 
             var txUtils = lightwallet.txutils; // 
+            var ewj = eth_wallet_js;
 
             
-
+            
             
             //初始化web3 连接公共远程节点
             // var web3 = new Web3(new Web3.providers.WebsocketProvider("wss://mainnet.infura.io/ws"));
@@ -150,8 +151,37 @@
                     }
                     $('#latest_gasprice').text(gweinum);
                 }); 
-
                 
+                /**
+                 * {
+                    address: "0xca83d7ff4bb20f5e25c101a0c6ab515469d2fcba", 
+                    privatekey: "0x4f3c86b1d4e4f471cb1c0b05d4402ff793d374bbe3c0855d27b0e9b0a3624218"
+                 * }
+                 */
+                // ewj.get_address_privatekey('mnemonic','pulp misery inmate wheat hero absent modify sock carry record top movie',function(res){
+                //     log(res)
+                // });
+
+                // ewj.get_address_privatekey('privatekey','5eb43a8c0ae8d7b105085c7d81abcffc16802106296318ac69b7670b9d4124bb',function(res){
+                //     log(res)
+                // });
+
+                // ewj.get_address_privatekey(
+                // 'keystore',
+                // {
+                //     password:'123456789',
+                //     keystore:`{"encSeed":{"encStr":"kBkCtUiDBmtTBLYqjJ/oggt0QmLl7dwi9e14scBX9z2CCBGfKoKwVoQn04prZSbkyzBVrMmt3ibdbk228aD54Lx1utJVDTjZwfaqlU8v/8uysgQCCm0b+/9jeFMbsNyJA2nuvRIFqtubE+1xQszn7zuSbY6598my05QNzCec0C/o0sliT0LGtA==","nonce":"NKDC1uxeJjwn3fEdvLjrA3AI3Aumuz7T"},"encHdRootPriv":{"encStr":"QeTjkJJTleeZNvb43aKgQXxI51NG9Yl92iYX6wbgx5QcvpVnBrbh5Gow+NPDbFkZQqrgFnBE0GpbeFbqM/8qaSXJfUqQOmT3olZL2JZ9vJgw+85SdMxaTWZB5Vmwz7zlyD5g8kVdF3lzsnQ4ddyKiXljLzSPHV9LKJ9OXXJ5DA==","nonce":"4ZG0q0o8p4Ym7GZxpOmfOPUcks5jeWn7"},"addresses":["ca83d7ff4bb20f5e25c101a0c6ab515469d2fcba"],"encPrivKeys":{"ca83d7ff4bb20f5e25c101a0c6ab515469d2fcba":{"key":"0EnU9wD+Veo0kKAKZceXsj4STOAOjOg0T/BxT2u6DCTO4nXpI4iuWZ6I13dGTaVy","nonce":"sA8MaIfMviiNuZYToTc3t/CJFdq0TJVs"}},"hdPathString":"m/44'/60'/0'/0/0","salt":"kVKX/fOAHtvfCVL5Rz8HaEA4recKAwGDt6cmpCGJoUs=","hdIndex":1,"version":3}`
+                // },
+                // function(res){
+                //     log(res)
+                // });
+                
+                ewj.get_balance({
+                    address:'0x3dc10b66f79b4f9e605b3778e4a70a4af2a3395b'
+                },function(res){
+                    log(res); // {gwei: "14000000", wei: "14000000000000000", ether: "0.014"}
+                });
+
 
             } ,2000);
             // 0.20 stable-version
@@ -175,7 +205,8 @@
                 keyStore.createVault({
                     password: password,
                     seedPhrase:seedPhrase,
-                    hdPathString: "m/44'/60'/0'/0" // "m/44'/60'/0'/0/0"
+                    hdPathString: "m/44'/60'/0'/0/0"
+                    // "m/44'/60'/0'/0" // 
                 },
                 function(err, ks){
                     if(err){ throw err; } 
