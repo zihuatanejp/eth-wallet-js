@@ -9,7 +9,11 @@ var log = console.log;
     var web3 = new Web3( new Web3.providers.HttpProvider('https://mainnet.infura.io/') );    
     ewj.use_provider = function(x){
         web3 = new Web3( new Web3.providers.HttpProvider(x) );
+        ewj.web3 = web3;
     }
+
+    // 将web3对象挂载到ewj下
+    ewj.web3 = web3;
     
     // 以太坊当前gas费价格
     ewj.gas_price = '';
@@ -178,7 +182,7 @@ var log = console.log;
                 ether:etherstr
             };
             if(obj.contract){
-                
+                cb(r);
             }else{
                 cb(r);
             }
@@ -195,29 +199,115 @@ var log = console.log;
      * 参数6: gas: gas最大限制数量，默认值11w,推荐使用默认值，不必传参，稳妥，略过量防止失败，交易用不完的gas会自动退回
      * 返回: txhash 交易哈希号，用于追踪交易
      */
-    ewj.send_eth = function(obj){
+    ewj.send_eth = function(obj,cb){
+        var privatekey = obj.privatekey;
+        if( privatekey.indexOf("0x") < 0 ){ privatekey = "0x"+privatekey; }
+        
+        var send_eth_num = obj.val;
+        if(obj.val_type){
+            if(obj.val_type=='ether'){
+                send_eth_num = web3.utils.toWei(send_eth_num,'ether'); 
+            }
+            if(obj.val_type =='gwei'){
+                send_eth_num = web3.utils.toWei(send_eth_num,'gwei'); 
+            }
+        }
+        
+        var gas_price = ewj.gas_price;
+        if(obj.gas_price){
+            gas_price = obj.gas_price;
+        }
+        else{
+            gas_price = ( parseInt( web3.utils.fromWei(gas_price,'gwei') ) + 5 ).toString();
+            gas_price = web3.utils.toWei(gas_price,'gwei');
+        }
 
+        var gas = 110000;
+        if(obj.gas){ gas = parseInt(obj.gas); }
+
+        var tx ={
+            to:obj.to,
+            value: send_eth_num,
+            gas:gas,
+            gasPrice:gas_price
+        };
+        web3.eth.accounts.signTransaction(tx, privatekey )
+        .then(function(res){
+            web3.eth.sendSignedTransaction(res.rawTransaction)
+            .on('transactionHash', function(txhash){
+                cb({ txhash:txhash });
+            })
+            .on('error',function(err,rece){ if(!rece){ var rece={}; }
+                cb({ err:err, rece:rece, txhash:rece.transactionHash });
+            })
+        })
     }
 
     /** 得到合约对象
      * 参数1：合约地址
      * 返回值: 合约对象 
      */
-    ewj.get_contract = function(obj){
+    ewj.get_contract = function(address,cb){        
+        var url = 'https://api.etherscan.io/api?module=contract&action=getabi&address='+address;
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', url);
+        xhr.send();
 
+        xhr.onreadystatechange = function(){
+            if ( xhr.readyState == 4 && xhr.status == 200 ) {
+                var res = JSON.parse(xhr.responseText);
+                var contract_json = JSON.parse(res.result)
+                var contract = new web3.eth.Contract(contract_json,address);
+                cb(contract);
+            }
+        }; 
     }
 
     /** 发送代币
      * 参数1: to: 发送合约的目标地址
      * 参数2: val:发送以太坊的单位数量
      * 参数3: privatekey: 账户私钥，用于签名交易 前缀带0x或者不带0x均可
-     * 参数4: 合约对象 要发送的token属于的contract
-     * 参数5: val_type:发送以太坊的单位 默认值wei,可选值:gwei,ether,wei 
-     * 参数6: gas_price: 单位gas价格 n数量的wei 默认值当前以太坊网络的gas价格的中位数+5gwei，推荐使用默认值,不传入该参数
-     * 参数7: gas: gas最大限制数量，默认值11w,推荐使用默认值，不必传参，稳妥，略过量防止失败，交易用不完的gas会自动退回
+     * 参数4: contract合约对象 要发送的token属于的contract
+     * 参数5: gas_price: 单位gas价格 n数量的wei 默认值当前以太坊网络的gas价格的中位数+5gwei，推荐使用默认值,不传入该参数
+     * 参数6: gas: gas最大限制数量，默认值11w,推荐使用默认值，不必传参，稳妥，略过量防止失败，交易用不完的gas会自动退回
      */
-    ewj.send_token = function(obj){
+    ewj.send_token = function(obj,cb){
+        var send_true_num = obj.val;
+        send_true_num = web3.utils.toWei(send_true_num);
+        contract = obj.contract;
+        var encode_abi = contract.methods.transfer(obj.to,send_true_num).encodeABI();
 
+        var gas = 110000;
+        if(obj.gas){ gas = parseInt(obj.gas); }
+        
+        var gas_price = ewj.gas_price;
+        if(obj.gas_price){
+            gas_price = obj.gas_price;
+        }
+        else{
+            gas_price = ( parseInt( web3.utils.fromWei(gas_price,'gwei') ) + 5 ).toString();
+            gas_price = web3.utils.toWei(gas_price,'gwei');
+        }
+
+        var tx ={
+            to:contract.options.address,  // 代币转账发送到合约地址
+            gas:gas,
+            gasPrice:gas_price,
+            data: encode_abi // 发送到合约地址处理的数据
+        };
+
+        var privatekey = obj.privatekey;
+
+        web3.eth.accounts.signTransaction(tx, privatekey )
+        .then(function(res){
+            web3.eth.sendSignedTransaction(res.rawTransaction)
+            .on('transactionHash', function(txhash){
+                cb({ txhash:txhash });
+            })
+            .on('error',function(err,rece){ if(!rece){ var rece={}; }
+                cb({ err:err, rece:rece, txhash:rece.transactionHash });
+            })
+        });
     }
 
     /**

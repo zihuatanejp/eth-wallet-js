@@ -83,17 +83,13 @@ var ewj = eth_wallet_js;
 ewj.get_address_privatekey(
     'mnemonic',
     'pulp misery inmate wheat hero absent modify sock carry record top movie',
-    function(res){
-        log(res);
-    }
+    function(res){ log(res); }
 );
 //私钥导入
 ewj.get_address_privatekey(
     'privatekey',
     '5eb43a8c0ae8d7b105085c7d81abcffc16802106296318ac69b7670b9d4124bb',
-    function(res){
-        log(res);
-    }
+    function(res){ log(res); }
 );
 //keystore导入 如果keystore生成时没有设置密码将password值传为''
 ewj.get_address_privatekey(
@@ -102,9 +98,7 @@ ewj.get_address_privatekey(
         password:'123456789',
         keystore:`{"encSeed":{"encStr":"kBkCtUiDBmtTBLYqjJ/oggt0QmLl7dwi9e14scBX9z2CCBGfKoKwVoQn04prZSbkyzBVrMmt3ibdbk228aD54Lx1utJVDTjZwfaqlU8v/8uysgQCCm0b+/9jeFMbsNyJA2nuvRIFqtubE+1xQszn7zuSbY6598my05QNzCec0C/o0sliT0LGtA==","nonce":"NKDC1uxeJjwn3fEdvLjrA3AI3Aumuz7T"},"encHdRootPriv":{"encStr":"QeTjkJJTleeZNvb43aKgQXxI51NG9Yl92iYX6wbgx5QcvpVnBrbh5Gow+NPDbFkZQqrgFnBE0GpbeFbqM/8qaSXJfUqQOmT3olZL2JZ9vJgw+85SdMxaTWZB5Vmwz7zlyD5g8kVdF3lzsnQ4ddyKiXljLzSPHV9LKJ9OXXJ5DA==","nonce":"4ZG0q0o8p4Ym7GZxpOmfOPUcks5jeWn7"},"addresses":["ca83d7ff4bb20f5e25c101a0c6ab515469d2fcba"],"encPrivKeys":{"ca83d7ff4bb20f5e25c101a0c6ab515469d2fcba":{"key":"0EnU9wD+Veo0kKAKZceXsj4STOAOjOg0T/BxT2u6DCTO4nXpI4iuWZ6I13dGTaVy","nonce":"sA8MaIfMviiNuZYToTc3t/CJFdq0TJVs"}},"hdPathString":"m/44'/60'/0'/0/0","salt":"kVKX/fOAHtvfCVL5Rz8HaEA4recKAwGDt6cmpCGJoUs=","hdIndex":1,"version":3}`
     },
-    function(res){
-        log(res)
-    }
+    function(res){ log(res); }
 );
 
 ```
@@ -134,15 +128,65 @@ eth_wallet_js.get_balance(
         address:'xxx',
         contract:{} // 该字段可选，合约对象 (可不传，默认查以太坊余额 通过调用get_contract得到合约对象)
     },
-    function(res){
-/*  返回res 对象类似如下
-    {
-      gwei:xx,
-      wei: xx,
-      ether:xx,
-      token:xx //如果传入第二个参数的话，则这个字段返回代币余额
+    function(res){/*  返回res 对象类似如下
+        {
+        gwei:xx,
+        wei: xx,
+        ether:xx,
+        token:xx //如果传入第二个参数的话，则这个字段返回代币余额
+        } */
     }
-*/
-    }
-){
+);
 ```
+
+### 发送以太坊
+var ewj = eth_wallet_js  
+ewj.send_eth( obj, cb )  
+传入参数obj如下:
+{  
+ to: 发送以太坊的目标地址  
+ val:发送以太坊的单位数量  
+ privatekey: 账户私钥，用于签名交易 前缀带0x或者不带0x均可  
+ val_type:发送以太坊的单位 默认值wei,可选值:gwei,ether,wei   
+ gas_price: 单位gas价格 n数量的wei 默认值当前以太坊网络的gas价格的中位数+5gwei，推荐使用默认值,不传入该参数  
+ gas: gas最大限制数量，默认值11w,推荐使用默认值，不必传参，稳妥，略过量防止失败，交易用不完的gas会自动退回   
+}  
+回调函数返回对象:
+`{txhash 交易哈希号，用于追踪交易 }`  
+如果遇到错误则返回  
+`{ err:err, rece:rece, txhash:xxxx }`  
+
+### 发送代币
+1.得到合约对象 
+```
+ewj.get_contract(adress,cb)  
+```
+传入参数address :合约地址
+cb(callback/回调函数)  
+function(contract){ }  
+返回 web3-contract对象
+
+2.发送合约代币
+```
+ewj.send_token( obj,cb )
+```
+传入参数obj如下：  
+{  
+  to: 发送合约的目标地址  
+  val:发送以太坊的单位数量  
+  privatekey: 账户私钥，用于签名交易 前缀带0x或者不带0x均可  
+  contract合约对象 要发送的token属于的contract  
+  gas_price: 单位gas价格 n数量的wei 默认值当前以太坊网络的gas价格的中位数+5gwei，推荐使用默认值,不传入该参数  
+  gas: gas最大限制数量，默认值11w,推荐使用默认值，不必传参，稳妥，略过量防止失败，交易用不完的gas会自动退回  
+}  
+返回：回调函数返回对象
+`{txhash 交易哈希号，用于追踪交易 }`  
+如果遇到错误则返回  
+`{ err:err, rece:rece, txhash:xxxx }`  
+
+ 
+ 
+ 
+ 
+ 
+ 
