@@ -141,17 +141,19 @@ var log = console.log;
             cb(account);
         }
         if(import_type=='keystore'){
-            ewj.get_address_privatekey(
-                'keystore',
-                {
-                    password:data.password,
-                    keystore:data.keystore
-                },
-                function(res){
-                    var account = web3.eth.accounts.privateKeyToAccount(res.privatekey);
-                    cb(account);
+            var ks = keystore.deserialize(data.keystore);
+            ks.keyFromPassword(data.password, function(err,pwDerivedKey){
+                var res = {};
+                if (err) { res.err = err; };
+                var address = ks.getAddresses()[0];
+                try {
+                    var privatekey = ks.exportPrivateKey(address, pwDerivedKey)
+                } catch(e){ 
+                    res.err = e; 
                 }
-            );
+                if(!res.err){ res = { address:address, privatekey:'0x'+privatekey }; }
+                cb(res);
+            })
         }
     }
 

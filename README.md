@@ -143,14 +143,16 @@ eth_wallet_js.get_balance(
 var ewj = eth_wallet_js  
 ewj.send_eth( obj, cb )  
 传入参数obj如下:
+```
 {  
- to: 发送以太坊的目标地址  
- val:发送以太坊的单位数量  
- privatekey: 账户私钥，用于签名交易 前缀带0x或者不带0x均可  
- val_type:发送以太坊的单位 默认值wei,可选值:gwei,ether,wei   
- gas_price: 单位gas价格 n数量的wei 默认值当前以太坊网络的gas价格的中位数+5gwei，推荐使用默认值,不传入该参数  
- gas: gas最大限制数量，默认值11w,推荐使用默认值，不必传参，稳妥，略过量防止失败，交易用不完的gas会自动退回   
+    to: 发送以太坊的目标地址  
+    val:发送以太坊的单位数量  
+    privatekey: 账户私钥，用于签名交易 前缀带0x或者不带0x均可  
+    val_type:发送以太坊的单位 默认值wei,可选值:gwei,ether,wei   
+    gas_price: 单位gas价格 n数量的wei 默认值当前以太坊网络的gas价格的中位数+5gwei，推荐使用默认值,不传入该参数  
+    gas: gas最大限制数量，默认值11w,推荐使用默认值，不必传参，稳妥，略过量防止失败，交易用不完的gas会自动退回   
 }  
+```
 回调函数返回对象:
 `{txhash 交易哈希号，用于追踪交易 }`  
 如果遇到错误则返回  
@@ -170,15 +172,17 @@ function(contract){ }
 ```
 ewj.send_token( obj,cb )
 ```
-传入参数obj如下：  
+传入参数obj如下：
+```  
 {  
-  to: 发送合约的目标地址  
-  val:发送以太坊的单位数量  
-  privatekey: 账户私钥，用于签名交易 前缀带0x或者不带0x均可  
-  contract合约对象 要发送的token属于的contract  
-  gas_price: 单位gas价格 n数量的wei 默认值当前以太坊网络的gas价格的中位数+5gwei，推荐使用默认值,不传入该参数  
-  gas: gas最大限制数量，默认值11w,推荐使用默认值，不必传参，稳妥，略过量防止失败，交易用不完的gas会自动退回  
+   to: 发送合约的目标地址  
+   val:发送以太坊的单位数量  
+   privatekey: 账户私钥，用于签名交易 前缀带0x或者不带0x均可  
+   contract合约对象 要发送的token属于的contract  
+   gas_price: 单位gas价格 n数量的wei 默认值当前以太坊网络的gas价格的中位数+5gwei，推荐使用默认值,不传入该参数  
+   gas: gas最大限制数量，默认值11w,推荐使用默认值，不必传参，稳妥，略过量防止失败，交易用不完的gas会自动退回  
 }  
+```
 返回：回调函数返回对象
 `{txhash 交易哈希号，用于追踪交易 }`  
 如果遇到错误则返回  
