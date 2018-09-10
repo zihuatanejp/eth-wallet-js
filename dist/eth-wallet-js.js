@@ -17,10 +17,16 @@ var log = console.log;
     
     // 以太坊当前gas费价格
     ewj.gas_price = '';
+    ewj.gas_price_gwei = ''
     function update_gas_price(){
         web3.eth.getGasPrice()
         .then(function(x){ 
             ewj.gas_price = x;
+            var gweistr = web3.utils.fromWei(x,'gwei') ;
+            if( gweistr.lastIndexOf('.') > 0 ){
+                gweistr = gweistr.substring(0,gweistr.lastIndexOf('.') );
+            }
+            ewj.gas_price_gwei = gweistr;
         });
     }
 
@@ -115,10 +121,16 @@ var log = console.log;
         if(import_type=='keystore'){
             var ks = keystore.deserialize(data.keystore);
             ks.keyFromPassword(data.password, function(err,pwDerivedKey){
-                if (err) throw err;
+                var res = {};
+                if (err) { res.err = err; };
                 var address = ks.getAddresses()[0];
-                var privatekey = ks.exportPrivateKey(address, pwDerivedKey)
-                cb({ address:address, privatekey:'0x'+privatekey })
+                try {
+                    var privatekey = ks.exportPrivateKey(address, pwDerivedKey)
+                } catch(e){ 
+                    res.err = e; 
+                }
+                if(!res.err){ res = { address:address, privatekey:'0x'+privatekey }; }
+                cb(res);
             })
         }
     }
@@ -141,19 +153,17 @@ var log = console.log;
             cb(account);
         }
         if(import_type=='keystore'){
-            var ks = keystore.deserialize(data.keystore);
-            ks.keyFromPassword(data.password, function(err,pwDerivedKey){
-                var res = {};
-                if (err) { res.err = err; };
-                var address = ks.getAddresses()[0];
-                try {
-                    var privatekey = ks.exportPrivateKey(address, pwDerivedKey)
-                } catch(e){ 
-                    res.err = e; 
+            ewj.get_address_privatekey(
+                'keystore',
+                {
+                    password:data.password,
+                    keystore:data.keystore
+                },
+                function(res){
+                    var account = web3.eth.accounts.privateKeyToAccount(res.privatekey);
+                    cb(account);
                 }
-                if(!res.err){ res = { address:address, privatekey:'0x'+privatekey }; }
-                cb(res);
-            })
+            );
         }
     }
 
@@ -274,10 +284,10 @@ var log = console.log;
      * 参数6: gas: gas最大限制数量，默认值11w,推荐使用默认值，不必传参，稳妥，略过量防止失败，交易用不完的gas会自动退回
      */
     ewj.send_token = function(obj,cb){
-        var send_true_num = obj.val;
-        send_true_num = web3.utils.toWei(send_true_num);
-        contract = obj.contract;
-        var encode_abi = contract.methods.transfer(obj.to,send_true_num).encodeABI();
+        var send_num = obj.val;
+        send_num = web3.utils.toWei(send_num);
+        var contract = obj.contract;
+        var encode_abi = contract.methods.transfer(obj.to,send_num).encodeABI();
 
         var gas = 110000;
         if(obj.gas){ gas = parseInt(obj.gas); }
