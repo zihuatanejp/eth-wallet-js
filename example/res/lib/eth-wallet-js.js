@@ -39,7 +39,7 @@ var log = console.log;
         keystore.createVault({
             password: pwd,
             seedPhrase:seed_phrase,
-            hdPathString: "m/44'/60'/0'/0/0"
+            hdPathString: "m/44'/60'/0'/0" //"m/44'/60'/0'/0/0"
         },
         function(err, ks){
             if(err){ throw err; }
@@ -99,7 +99,7 @@ var log = console.log;
                 {
                     password:'',
                     seedPhrase:data,
-                    hdPathString: "m/44'/60'/0'/0/0"
+                    hdPathString: "m/44'/60'/0'/0" //"m/44'/60'/0'/0/0"
                 },
                 function(err,ks){
                     if (err) throw err;
