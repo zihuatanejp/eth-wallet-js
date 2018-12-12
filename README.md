@@ -13,22 +13,26 @@ send ether&amp;&amp;dapp tokens,etc..
 ### Usage(how to use?)
 ----
 首先引入dist/下的js文件到html中
+(first, ref the library file)
 ```
 <script type="text/javascript" src="your-path/dist/lightwallet.min.js" ></script>
 <script src="your-path/dist/web3.min.js"></script>
 <script src="your-path/dist/eth-wallet-js.js"></script>
 ```
-查看示例:
+查看示例(example):
 ```
 > git clone https://github.com/zihuatanejp/eth-wallet-js.git
 > cd eth-wallet-js
 > npm install
 > npm run example
 ```
-// 然后在浏览器中打开 [http://127.0.0.1:8511/](http://127.0.0.1:8511/)
+// 然后在浏览器中打开(then open broswer with the url); 
+[http://127.0.0.1:8511/](http://127.0.0.1:8511/)
 
 ### Example
 ----
+(gen account :get the **mnemonic, address, privatekey, keystore, ethv3_keystore** with one call.)   
+(optional:you can provide a pwd to encrypt the keystore json-string content) 
 生成钱包(得到 `助记词`,`地址`，`私钥`，`keystore文件内容`)：
 ```javascript
 eth_wallet_js.gen_wallet('123456789',function(w){
@@ -62,17 +66,30 @@ eth_wallet_js.gen_wallet('123456789',function(w){
         "salt":"if7NAc46pR7IkJeKuNzBJCGGWJRDEGoSPEiJWzkMcRQ=",
         "hdIndex":1,
         "version":3
+    }",
+    ethv3_keystore:"{
+        "version":3,"id":"4f4823db-44c9-4fd0-8f53-470453d327e5",
+        "address":"8a777171d88edf4d5652f504b221c8cdbc0e4a58",
+        "crypto":{
+            "ciphertext":"392fcc7afbe718bd0a3a54e61039fda877223d47ad00754f85248192993c2a69",
+            "cipherparams":{"iv":"8f0a63e4fd55738b09011e01aedeaf6c"},
+            "cipher":"aes-128-ctr",
+            "kdf":"scrypt",
+            "kdfparams":{"dklen":32,"salt":"7defa41b40a41a749dfcb67884425d83091af3d07b0d6c26584d6d88044ca1c5","n":8192,"r":8,"p":1},"mac":"e56a0f78ee339527fbad1fa5dacf92db6bdb580eefefd4842cd08ab2cd5ca356"
+        }
     }"
 }
 */
 
 ```
-
+(import account by three ways:**mnemonic, privatekey, keystore&&pwd, ethv3_keystore&&pwd**)  
 导入钱包（支持三种方式：‘助记词’，‘私钥’，‘keystore内容和密码’）
+由于keystore 会导出默认的bip39keystore和ethv3_keystore 所以这里keystore会自动检测格式内容导入，  
+无需开发者额外关心。
 回调函数返回一对 { 账户地址,私钥  }组成的对象
 ```javascript
 
-/** 返回res格式如下所示
+/** 返回res格式如下所示 (return object is):
  {
     address: "0xca83d7ff4bb20f5e25c101a0c6ab515469d2fcba", 
     privatekey: "0x4f3c86b1d4e4f471cb1c0b05d4402ff793d374bbe3c0855d27b0e9b0a3624218"

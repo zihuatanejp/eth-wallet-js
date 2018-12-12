@@ -49,13 +49,11 @@ var log = console.log;
                 var addrs = ks.getAddresses();
                 var jsontext = ks.serialize();
                 var privatekey = ks.exportPrivateKey(addrs[0], pwDerivedKey);
-                var ethv3_keystore = JSON.stringify( ewj.web3.eth.accounts.encrypt("0x"+privatekey,pwd) );
                 cb({
                     mnemonic:seed_phrase,       // 导出的助记词
                     address:addrs[0],           // 导出的钱包地址
                     privatekey:"0x"+privatekey, // 导出的私钥
-                    keystore:jsontext ,           // 导出的keystore-bip39
-                    ethv3_keystore:ethv3_keystore    // 导出的ethv3keystore
+                    keystore:jsontext           // 导出的keystore
                 });
             });
         });
@@ -96,10 +94,6 @@ var log = console.log;
     *   参数3: 回调函数 用于返回地址和私钥 cb({address:'0xaa',privatekey:'0xaa'})
     */   
     ewj.get_address_privatekey = function(import_type,data,cb){
-        var account = '';
-        var address = '';
-        var privatekey = '';
-        var res = {};
         if(import_type=='mnemonic'){
             keystore.createVault(
                 {
@@ -112,8 +106,8 @@ var log = console.log;
                     ks.keyFromPassword('', function (err, pwDerivedKey) {
                         if (err) throw err;
                         ks.generateNewAddress(pwDerivedKey, 1);
-                        address = ks.getAddresses()[0];
-                        privatekey = ks.exportPrivateKey(address, pwDerivedKey)
+                        var address = ks.getAddresses()[0];
+                        var privatekey = ks.exportPrivateKey(address, pwDerivedKey)
                         cb({ address:address, privatekey:'0x'+privatekey })
                     });
                 }
@@ -121,34 +115,23 @@ var log = console.log;
         }
         if(import_type=='privatekey'){
             if( data.indexOf("0x") < 0 ){ data = "0x"+data; }
-            account = web3.eth.accounts.privateKeyToAccount(data);
+            var account = web3.eth.accounts.privateKeyToAccount(data);
             cb({ address:account.address, privatekey:data })
         }
         if(import_type=='keystore'){
-            var ks_json = JSON.parse(data.keystore);
-            if(ks_json.salt){ // bip39
-                var ks = keystore.deserialize(data.keystore);
-                ks.keyFromPassword(data.password, function(err,pwDerivedKey){                    
-                    if (err) { res.err = err; };
-                    address = ks.getAddresses()[0];
-                    try {
-                        privatekey = ks.exportPrivateKey(address, pwDerivedKey)
-                    } catch(e){ 
-                        res.err = e; 
-                    }
-                    if(!res.err){ res = { address:address, privatekey:'0x'+privatekey }; }
-                    cb(res);
-                })
-            }else{
-                try{
-                    account = ewj.web3.eth.accounts.decrypt(ks_json,data.password);//password是必填参数
-                    res = { address:account.address,privatekey:account.privateKey };
-                }catch(e){
-                    res.err = e;
+            var ks = keystore.deserialize(data.keystore);
+            ks.keyFromPassword(data.password, function(err,pwDerivedKey){
+                var res = {};
+                if (err) { res.err = err; };
+                var address = ks.getAddresses()[0];
+                try {
+                    var privatekey = ks.exportPrivateKey(address, pwDerivedKey)
+                } catch(e){ 
+                    res.err = e; 
                 }
+                if(!res.err){ res = { address:address, privatekey:'0x'+privatekey }; }
                 cb(res);
-            }
-            
+            })
         }
     }
 

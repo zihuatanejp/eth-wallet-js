@@ -49,8 +49,6 @@
                 <p id="newmnemonic" class="text"></p>
                 <p class="text">生成的keystore文件内容:</p>
                 <p id="newkeystore" class="text"></p>
-                <p class="text">生成的ethv3_keystore文件内容:</p>
-                <p id="new_ethv3_keystore" class="text"></p>
             </div>
             <div class="bk">
                 <p class="text">从私钥导入</p>
@@ -120,9 +118,9 @@
         </div>
         
         <script type="text/javascript" src="./lib/jquery_2.1.4_jquery.min.js" ></script>
-        <script type="text/javascript" src="./lib/lightwallet.js" ></script>
+        <!-- <script type="text/javascript" src="./lib/lightwallet.js" ></script> -->
         <script src="./lib/web3.min.js"></script>
-        <script src="./lib/eth-wallet-js.js"></script>
+        <script src="./lib/eth-wallet-js-new.js"></script>
         <script type="text/javascript">
         // ;(function ($) {
             var log = console.log;
@@ -134,8 +132,6 @@
             var keyStore = lightwallet.keystore; // 
             var txUtils = lightwallet.txutils; // 
             var ewj = eth_wallet_js;
-
-            
 
             
             
@@ -189,19 +185,7 @@
                 ewj.get_contract('0xa4d17ab1ee0efdd23edc2869e7ba96b89eecf9ab',function(res){
                     log(res);
                 });
-                
-                //导出 和导入keystore支持两种 bip39和ethv3
-                ewj.gen_wallet('123',function(res){
-                    log('gen new wallet',res)
-                    ewj.get_address_privatekey('keystore',{keystore: res.keystore, password:'123'},function(r){
-                        log('keystore decry',r);
-                    });
-                    ewj.get_address_privatekey('keystore',{keystore: res.ethv3_keystore, password:'123'},function(r){
-                        log('keystore decry',r);
-                    });
-                })
 
-                
 
             } ,2000);
             // 0.20 stable-version
@@ -247,13 +231,11 @@
                         // 得到导出的私钥:
                         var privatekey = ks.exportPrivateKey(addrs[0], pwDerivedKey);
                         // log( privatekey );
-                        var ethv3_keystore = web3.eth.accounts.encrypt("0x"+privatekey,password);
 
                         $('#newprivatekey').text("0x"+privatekey);
                         $('#newmnemonic').text(seedPhrase);
                         $('#newkeystore').text(jsontext);
                         $('#newaddress').text(addrs[0]);
-                        $("#new_ethv3_keystore").text( JSON.stringify(ethv3_keystore) );
                     });
                 });
 
@@ -296,18 +278,9 @@
             //从keystore导入(需要再提供密码)
             $('#unlock_from_keystore').click(function(){
                 var keystore_file = $('#keystore').val();
-                var ks_file_json = JSON.parse(keystore_file);
-                var address = '';
-                if(ks_file_json.salt){
-                    var ks = keyStore.deserialize(keystore_file);
-                    var addrs = ks.getAddresses();
-                    address = addrs[0];
-                }else{
-                   var account = web3.eth.accounts.decrypt(ks_file_json,'');//password是必填参数
-                   address = account.address
-                }
-                
-                $('#from_keystore_addr').text( address );
+                var ks = keyStore.deserialize(keystore_file);
+                var addrs = ks.getAddresses();
+                $('#from_keystore_addr').text( addrs[0] );
             });
 
             //根据账户地址得到账户余额
